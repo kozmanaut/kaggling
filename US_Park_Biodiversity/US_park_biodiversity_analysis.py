@@ -2,6 +2,8 @@
 
 """
 Using the US National Park Biodiversity database to run some analyses
+database available at: https://www.kaggle.com/nationalparkservice/park-biodiversity
+data downloaded on 20 January 2017
 """
 
 import pandas as pd
