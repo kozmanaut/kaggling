@@ -22,11 +22,11 @@ parks = pd.read_csv('parks.csv')
 len(species['Scientific Name'].unique())
 # 33273
 
-# Count the occurrence of each conservation status
+# Count the occurrence of each conservation status across all parks
 status = species['Conservation Status'].value_counts()
 status
 
-# Conservation Status of each organism category
+# Break down of Conservation Status of each Organism category
 org = species[['Category', 'Conservation Status']]
 org_count = org.groupby(['Category', 'Conservation Status']).size()
 org_count.unstack(level=1).plot(kind='bar', stacked=True)
@@ -44,6 +44,9 @@ plt.tight_layout()
 plt.savefig('Organism_Conservation_Status.png')
 
 
+#######
+# Find out more about each park individually
+#######
 
 # Calculate number of each conservation status category for each park
 props = species[['Park Name', 'Conservation Status']].groupby(['Park Name', 'Conservation Status']).size()
