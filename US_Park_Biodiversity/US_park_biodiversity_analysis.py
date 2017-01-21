@@ -6,9 +6,10 @@ database available at: https://www.kaggle.com/nationalparkservice/park-biodivers
 data downloaded on 20 January 2017
 """
 
+from __future__ import division
 import pandas as pd
 import matplotlib.pyplot  as plt
-from __future__ import division
+
 
 # for prettier plots
 plt.style.use('ggplot')
@@ -16,7 +17,7 @@ plt.rcParams['figure.figsize'] = (20, 10)
 
 
 # Load the dataset
-species = pd.read_csv('species.csv')
+species = pd.read_csv('species.csv', usecols=range(1,13))
 species['Conservation Status'].fillna('Not Threatened', inplace=True)	# change NaN to 'Not Threatened' in the Conservation Status column
 parks = pd.read_csv('parks.csv')
 
@@ -32,18 +33,22 @@ status
 org = species[['Category', 'Conservation Status']]
 org_count = org.groupby(['Category', 'Conservation Status']).size()
 org_count.unstack(level=1).plot(kind='bar', stacked=True)
-plt.tight_layout()
 plt.legend(loc='upper left')
+plt.xlabel('Organism class')
+plt.ylabel('Count')
+plt.title('Breakdown of each conservation category across all organism classes')
+plt.tight_layout()
 plt.show()
 #get rid of 'not threatened' column
 org_count_not_safe= org_count.unstack(level=1)
 org_count_not_safe = org_count_not_safe.ix[:, org_count_not_safe.columns != 'Not Threatened']
 org_count_not_safe.plot.bar(stacked=True)
-plt.xlabel('Organism Category')
-plt.ylabel('Number of species')
+plt.xlabel('Organism class')
+plt.ylabel('Count')
+plt.title('\'Not Threatened\' conservation category excluded')
 plt.tight_layout()
-#plt.show()
-plt.savefig('Organism_Conservation_Status.png')
+plt.show()
+#plt.savefig('Organism_Conservation_Status.png')
 
 
 #######
@@ -74,7 +79,7 @@ def max_min_parks(df):
 	for i in df['Conservation Status'].unique():
 		print "Maximum number of" , i.lower() ,  ":" ,  "%s (%d)" % (df.loc[df['Count'].where(df['Conservation Status'] == i).idxmax()][0], df.loc[df['Count'].where(df['Conservation Status'] == i).idxmax()][2])
 		print "Minimum number of" , i.lower() ,  ":" ,  "%s (%d)" % (df.loc[df['Count'].where(df['Conservation Status'] == i).idxmin()][0], df.loc[df['Count'].where(df['Conservation Status'] == i).idxmin()][2])
-
+	print('')
 max_min_parks(props_df)
 
 
@@ -92,7 +97,7 @@ def per_acre_max_min_parks(df):
 	for i in df['Conservation Status'].unique():
 		print "Per acre of park maximum number of" , i.lower() ,  ":" ,  "%s (%f)" % (df.loc[df['CountPerAcre'].where(df['Conservation Status'] == i).idxmax()][0], df.loc[df['CountPerAcre'].where(df['Conservation Status'] == i).idxmax()][3])
 		print "Per acre of park minimum number of" , i.lower() ,  ":" ,  "%s (%f)" % (df.loc[df['CountPerAcre'].where(df['Conservation Status'] == i).idxmin()][0], df.loc[df['CountPerAcre'].where(df['Conservation Status'] == i).idxmin()][3])
-
+	print('')
 per_acre_max_min_parks(props_df)
 
 
@@ -112,7 +117,7 @@ def proportional_min_max_parks(df):
 	for i in df['Conservation Status'].unique():
 		print "Park with maximum proportion of" , i.lower() ,  ":" ,  "%s (%f)" % (df.loc[df['ProportionalCount'].where(df['Conservation Status'] == i).idxmax()][0], df.loc[df['ProportionalCount'].where(df['Conservation Status'] == i).idxmax()][4])
 		print "Park with minimum proportion of" , i.lower() ,  ":" ,  "%s (%f)" % (df.loc[df['ProportionalCount'].where(df['Conservation Status'] == i).idxmin()][0], df.loc[df['ProportionalCount'].where(df['Conservation Status'] == i).idxmin()][4])
-
+	print('')
 proportional_min_max_parks(props_df)
 
 ###
