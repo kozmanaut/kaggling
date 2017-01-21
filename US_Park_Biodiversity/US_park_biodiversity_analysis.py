@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Using the US National Park Biodiversity database to run some analyses
+Using the US National Park Biodiversity database to run some stats on the parks - which ones contain the most amount of imperiled species?
 database available at: https://www.kaggle.com/nationalparkservice/park-biodiversity
 data downloaded on 21 January 2017
 """
@@ -77,10 +77,17 @@ props_df.columns = ['Park Name', 'Conservation Status', 'Count']
 def max_min_parks(df):
 	""" Function that finds the min/max for each Conservation category"""
 	for i in df['Conservation Status'].unique():
-		print "Maximum number of" , i.lower() ,  ":" ,  "%s (%d)" % (df.loc[df['Count'].where(df['Conservation Status'] == i).idxmax()][0], df.loc[df['Count'].where(df['Conservation Status'] == i).idxmax()][2])
-		print "Minimum number of" , i.lower() ,  ":" ,  "%s (%d)" % (df.loc[df['Count'].where(df['Conservation Status'] == i).idxmin()][0], df.loc[df['Count'].where(df['Conservation Status'] == i).idxmin()][2])
+		print "Park with the maximum number of" , i.lower() ,  "species:" ,  "%s (%d)" % (df.loc[df['Count'].where(df['Conservation Status'] == i).idxmax()][0], df.loc[df['Count'].where(df['Conservation Status'] == i).idxmax()][2])
+		print "Park with the minimum number of" , i.lower() ,  "species:" ,  "%s (%d)" % (df.loc[df['Count'].where(df['Conservation Status'] == i).idxmin()][0], df.loc[df['Count'].where(df['Conservation Status'] == i).idxmin()][2])
 	print('')
 max_min_parks(props_df)
+
+# PARK with:
+# Maximum number of endangered species: Hawaii Volcanoes National Park (44)
+# Maximum number of in recovery species: Redwood National Park (7)
+# Maximum number of species of concern : Death Valley National Park (177)
+# Maximum number of threatened species: Death Valley National Park (16)
+# Maximum number of proposed endangered species: Haleakala National Park (11)
 
 
 
@@ -96,10 +103,18 @@ props_df['CountPerAcre'] = props_df.apply(divide_count, axis=1)
 def per_acre_max_min_parks(df):
 	""" Function that finds the min/max for each Conservation category per acre of park"""
 	for i in df['Conservation Status'].unique():
-		print "Per acre of park maximum number of" , i.lower() ,  ":" ,  "%s (%f)" % (df.loc[df['CountPerAcre'].where(df['Conservation Status'] == i).idxmax()][0], df.loc[df['CountPerAcre'].where(df['Conservation Status'] == i).idxmax()][3])
-		print "Per acre of park minimum number of" , i.lower() ,  ":" ,  "%s (%f)" % (df.loc[df['CountPerAcre'].where(df['Conservation Status'] == i).idxmin()][0], df.loc[df['CountPerAcre'].where(df['Conservation Status'] == i).idxmin()][3])
+		print "Park with the per acre maximum number of" , i.lower() ,  "species:" ,  "%s (%f)" % (df.loc[df['CountPerAcre'].where(df['Conservation Status'] == i).idxmax()][0], df.loc[df['CountPerAcre'].where(df['Conservation Status'] == i).idxmax()][3])
+		print "Park with the per acre minimum number of" , i.lower() ,  "species:" ,  "%s (%f)" % (df.loc[df['CountPerAcre'].where(df['Conservation Status'] == i).idxmin()][0], df.loc[df['CountPerAcre'].where(df['Conservation Status'] == i).idxmin()][3])
 	print('')
 per_acre_max_min_parks(props_df)
+
+# Park with the per acre maximum number of endangered species: Haleakala National Park (0.001375)
+# Park with the per acre maximum number of in recovery species: Hot Springs National Park (0.000180)
+# Park with the per acre maximum number of species of concern: Hot Springs National Park (0.010991)
+# Park with the per acre maximum number of threatened species: Hot Springs National Park (0.000360)
+# Park with the per acre maximum number of proposed endangered species: Haleakala National Park (0.000378)
+
+
 
 
 # Count the proportion of each conservation category for each park - i.e. find the park with the highest proportion of endangered species
@@ -116,10 +131,17 @@ props_df['ProportionalCount'] = props_df.apply(divide_total, axis=1)
 def proportional_min_max_parks(df):
 	""" Function that finds the park with the highest / lowest proportion of each conservation category"""
 	for i in df['Conservation Status'].unique():
-		print "Park with maximum proportion of" , i.lower() ,  ":" ,  "%s (%f)" % (df.loc[df['ProportionalCount'].where(df['Conservation Status'] == i).idxmax()][0], df.loc[df['ProportionalCount'].where(df['Conservation Status'] == i).idxmax()][4])
-		print "Park with minimum proportion of" , i.lower() ,  ":" ,  "%s (%f)" % (df.loc[df['ProportionalCount'].where(df['Conservation Status'] == i).idxmin()][0], df.loc[df['ProportionalCount'].where(df['Conservation Status'] == i).idxmin()][4])
+		print "Park with maximum proportion of" , i.lower() ,  "species:" ,  "%s (%f)" % (df.loc[df['ProportionalCount'].where(df['Conservation Status'] == i).idxmax()][0], df.loc[df['ProportionalCount'].where(df['Conservation Status'] == i).idxmax()][4])
+		print "Park with minimum proportion of" , i.lower() ,  "species:" ,  "%s (%f)" % (df.loc[df['ProportionalCount'].where(df['Conservation Status'] == i).idxmin()][0], df.loc[df['ProportionalCount'].where(df['Conservation Status'] == i).idxmin()][4])
 	print('')
 proportional_min_max_parks(props_df)
+
+# Park with maximum proportion of endangered species: Haleakala National Park (0.015504)
+# Park with maximum proportion of in recovery species: Channel Islands National Park (0.002653)
+# Park with maximum proportion of species of concern species: Petrified Forest National Park (0.086753)
+# Park with maximum proportion of threatened species: Dry Tortugas National Park (0.007075)
+# Park with maximum proportion of proposed endangered species: Haleakala National Park (0.004264)
+
 
 ###
 # STILL TO DO:
