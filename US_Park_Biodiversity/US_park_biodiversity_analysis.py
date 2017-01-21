@@ -85,13 +85,14 @@ max_min_parks(props_df)
 
 
 # Count of each conservation category per acre for each NP - i.e. per acre of land, which park harbors the most e.g. endangered species
+#1. Create a dictionary with 'Park' : 'Acres'
 park_dict = dict(zip(parks['Park Name'], parks['Acres']))
-
+#2. Create a function that divides each row's conservation category count by the park's area
 def divide_count(row):
 	return row['Count']/(park_dict[row['Park Name']])
-
+#3. Create a new column with the count per acre measure
 props_df['CountPerAcre'] = props_df.apply(divide_count, axis=1)
-
+#4. Find which parks have the max/min of each conservation category per acre of land
 def per_acre_max_min_parks(df):
 	""" Function that finds the min/max for each Conservation category per acre of park"""
 	for i in df['Conservation Status'].unique():
