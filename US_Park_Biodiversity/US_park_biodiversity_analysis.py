@@ -19,11 +19,12 @@ plt.rcParams['figure.figsize'] = (20, 10)
 # Load the dataset
 species = pd.read_csv('species.csv', usecols=range(1,13))
 species['Conservation Status'].fillna('Not Threatened', inplace=True)	# change NaN to 'Not Threatened' in the Conservation Status column
+species = species[species['Conservation Status'].str.contains("Breeder|Resident|Migratory") == False]   # drop the rows where conservation category is either "Breeder", "Resident" or "Migratory"
 parks = pd.read_csv('parks.csv')
 
 # how many unique species there are
 len(species['Scientific Name'].unique())
-# 33273
+# 46022
 
 # Count the occurrence of each conservation status across all parks
 status = species['Conservation Status'].value_counts()
