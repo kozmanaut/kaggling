@@ -88,9 +88,16 @@ max_min_parks(props_df)
 # Maximum number of in recovery species: Redwood National Park (7)
 # Maximum number of species of concern : Death Valley National Park (177)
 # Maximum number of threatened species: Death Valley National Park (16)
-# Maximum number of proposed endangered species: Haleakala National Park (11)
 
-
+## PLOT
+cat_to_plot = ['Endangered', 'In Recovery', 'Species of Concern', 'Threatened']
+for i in cat_to_plot:
+	subset = props_df[props_df['Conservation Status'] == i]
+	subset.sort_values(by='Count', ascending=False).plot(x='Park Name', y='Count', kind='bar', legend=None)
+	plt.ylabel('Absolute number of species')
+	plt.title('Conservation category: %s' % (i))
+	plt.tight_layout()
+plt.show()
 
 # Count of each conservation category per acre for each NP - i.e. per acre of land, which park harbors the most e.g. endangered species
 #1. Create a dictionary with 'Park' : 'Acres'
@@ -112,21 +119,27 @@ per_acre_max_min_parks(props_df)
 # Park with the per acre maximum number of endangered species: Haleakala National Park (0.001375)
 # Park with the per acre maximum number of in recovery species: Hot Springs National Park (0.000180)
 # Park with the per acre maximum number of species of concern: Hot Springs National Park (0.010991)
-# Park with the per acre maximum number of threatened species: Hot Springs National Park (0.000360)
-# Park with the per acre maximum number of proposed endangered species: Haleakala National Park (0.000378)
+# Park with the per acre maximum number of threatened species: Hot Springs National Park (0.000360
 
-
+# PLOT
+for i in cat_to_plot:
+	subset = props_df[props_df['Conservation Status'] == i]
+	subset.sort_values(by='CountPerAcre', ascending=False).plot(x='Park Name', y='CountPerAcre', kind='bar', legend=None)
+	plt.ylabel('Number of species per acre of park land')
+	plt.title('Conservation category: %s' % (i))
+	plt.tight_layout()
+plt.show()
 
 
 # Count the proportion of each conservation category for each park - i.e. find the park with the highest proportion of endangered species
 #1. Sum up all conservation classes per park
 park_sums = props_df.groupby(['Park Name']).agg('sum').reset_index()
-# Create a dictionary with 'Park' : 'Total count'
+# 2. Create a dictionary with 'Park' : 'Total count'
 park_sums_dict = dict(zip(park_sums['Park Name'], park_sums['Count']))
 # Create function that divides each conservation category count by the total count
 def divide_total(row):
 	return row['Count']/(park_sums_dict[row['Park Name']])
-# Create new column with proportional count of conservation category
+# 3. Create new column with proportional count of conservation category
 props_df['ProportionalCount'] = props_df.apply(divide_total, axis=1)
 # FInd out which parks have the maximum proportion of each conservation category
 def proportional_min_max_parks(df):
@@ -141,8 +154,15 @@ proportional_min_max_parks(props_df)
 # Park with maximum proportion of in recovery species: Channel Islands National Park (0.002653)
 # Park with maximum proportion of species of concern species: Petrified Forest National Park (0.086753)
 # Park with maximum proportion of threatened species: Dry Tortugas National Park (0.007075)
-# Park with maximum proportion of proposed endangered species: Haleakala National Park (0.004264)
 
+#Plot
+for i in cat_to_plot:
+	subset = props_df[props_df['Conservation Status'] == i]
+	subset.sort_values(by='ProportionalCount', ascending=False).plot(x='Park Name', y='ProportionalCount', kind='bar', legend=None)
+	plt.ylabel('Number of species per acre of park land')
+	plt.title('Conservation category: %s' % (i))
+	plt.tight_layout()
+plt.show()
 
 ###
 # STILL TO DO:
