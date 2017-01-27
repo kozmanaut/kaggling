@@ -8,7 +8,10 @@ data downloaded on 21 January 2017
 
 from __future__ import division
 import pandas as pd
-import matplotlib.pyplot  as plt
+import matplotlib.pyplot as plt
+import plotly.plotly as py
+import plotly.graph_objs as go
+
 
 
 # for prettier plots
@@ -165,4 +168,13 @@ for i in cat_to_plot:
 plt.show()
 
 ###
-# STILL TO DO:
+# Plotly trials
+
+not_safe = props_df.loc[props_df['Conservation Status'] != 'Not Threatened']
+
+data = [go.Heatmap(x=not_safe['Park Name'], y=not_safe['Conservation Status'], z=not_safe['Count'], colorscale='Hot')]
+layout = go.Layout(margin = dict(b=220, l=150, pad=4))
+fig = go.Figure(data = data, layout = layout)
+plot = py.plot(fig, filename='props_test')
+
+
