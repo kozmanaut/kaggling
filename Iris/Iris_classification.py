@@ -9,8 +9,6 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
 
-
-
 # load dataset and separate variables
 iris = load_iris()
 x = iris.data()
