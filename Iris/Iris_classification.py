@@ -38,29 +38,26 @@ svc.fit(x_train_std, y_train)
 
 # find how well the model performs
 print "SVC classifier\nAccuracy on training set: %.2f" % svc.score(x_train_std, y_train)
-# 0.971
 
 print "The accuracy of  testing set: %.2f" % svc.score(x_test_std, y_test)
-# 0.955
 
 predict_x_test = svc.predict(x_test_std)
 print "Accuracy score: %.2f" % accuracy_score(y_test, predict_x_test)
-# 0.955
 
 print "Precision score: %.2f" % precision_score(y_test, predict_x_test, average='weighted')
-# 0.955
 
 print  "Recall score: %.2f" % recall_score(y_test, predict_x_test, average='weighted')
-# 0.955
 
 print "F1 score: %.2f" % f1_score(y_test, predict_x_test, average='weighted')
-# 0.955
 
 # check out the confusion matrix & classification report
 print "\nConfusion matrix: \n", confusion_matrix(y_test, predict_x_test)
 
 print "\nClassification report: \n", classification_report(y_test, predict_x_test, target_names=iris.target_names)
 print "-"*55
+
+# Conclusion: SVC performs well. Only one mis-classified instance
+
 
 ################
 # Try KNeighborsClassifier
@@ -80,6 +77,7 @@ print "\nClassification report: \n", classification_report(y_test, predict_knc, 
 print "-"*55
 
 # Conclusions: KNC performs a little worse than SVC - mis-classifies 2 versicolor as virginica
+
 
 ##############
 ## Try Random forest
@@ -108,6 +106,7 @@ print "\nClassification report: \n", classification_report(y_test, predict_rfc, 
 print "-"*55
 
 # Conclusion: RFC performs a little worse than SVC or KNC, mis-classifies 3 instances. Overfitting? Accuracy on training set = 100%
+
 
 ###########
 # Try GaussianNB - Naive Bayes Classifier
