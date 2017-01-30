@@ -124,3 +124,5 @@ predict_nbc = nbc.predict(x_test_std)
 print "\nConfusion matrix: \n", confusion_matrix(y_test, predict_nbc)
 print "\nClassification report: \n", classification_report(y_test, predict_nbc, target_names=iris.target_names)
 print "-"*55
+
+# Conclusion: NBC performs as poorly as RFC - 3 mis-classified instances. No such severe overfitting though!
