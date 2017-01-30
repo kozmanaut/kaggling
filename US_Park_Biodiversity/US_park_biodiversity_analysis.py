@@ -172,8 +172,16 @@ plt.show()
 
 not_safe = props_df.loc[props_df['Conservation Status'] != 'Not Threatened']
 
-data = [go.Heatmap(x=not_safe['Park Name'], y=not_safe['Conservation Status'], z=not_safe['Count'], colorscale='Hot')]
-layout = go.Layout(margin = dict(b=220, l=150, pad=4))
+data = [go.Heatmap(x=not_safe['Park Name'], y=not_safe['Conservation Status'], z=not_safe['Count'], colorscale='Viridis')]
+layout = go.Layout(
+	xaxis=dict(
+		tickfont=dict(
+			size = 10
+			)
+		),
+	margin = dict(
+		b=250, l=150, t=10)
+	)
 fig = go.Figure(data = data, layout = layout)
 plot = py.plot(fig, filename='props_test')
 
