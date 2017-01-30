@@ -125,4 +125,33 @@ print "\nConfusion matrix: \n", confusion_matrix(y_test, predict_nbc)
 print "\nClassification report: \n", classification_report(y_test, predict_nbc, target_names=iris.target_names)
 print "-"*55
 
-# Conclusion: NBC performs as poorly as RFC - 3 mis-classified instances. No such severe overfitting though!
+# Conclusion: NBC performs as poorly as RFC - 3 mis-classified instances. No such severe overfitting though.
+
+########
+# Try PCA
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+x_pca3 = PCA(n_components = 3).fit_transform(x)
+
+fig = plt.figure(1, figsize = (10,10))
+ax = Axes3D(fig, elev=-150, azim=110)
+ax.scatter(x_pca3[:, 0], x_pca3[:, 1], x_pca3[:, 2], c= y)
+ax.set_xlabel("1st eigenvector")
+ax.w_xaxis.set_ticklabels([])
+ax.set_ylabel("2nd eigenvector")
+ax.w_yaxis.set_ticklabels([])
+ax.set_zlabel("3rd eigenvector")
+ax.w_zaxis.set_ticklabels([])
+plt.show()
+
+x_pca2 = PCA(n_components = 2).fit_transform(x)
+plt.scatter(x=x_pca2[:, 0], y= x_pca2[:, 1], c = y, alpha = 0.6)
+plt.xlabel('1st eigenvector')
+plt.xticks([])
+plt.ylabel('2nd eigenvector')
+plt.yticks([])
+plt.title('PCA of Iris dataset using two components')
+plt.tight_layout()
+plt.show()
