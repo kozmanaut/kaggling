@@ -9,6 +9,10 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
 
+# for prettier plots
+plt.style.use('ggplot')
+plt.rcParams['figure.figsize'] = (20, 10)
+
 # load dataset and separate variables
 iris = load_iris()
 x = iris.data
@@ -133,8 +137,8 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+# PCA with 3 PC's
 x_pca3 = PCA(n_components = 3).fit_transform(x)
-
 fig = plt.figure(1, figsize = (10,10))
 ax = Axes3D(fig, elev=-150, azim=110)
 ax.scatter(x_pca3[:, 0], x_pca3[:, 1], x_pca3[:, 2], c= y)
@@ -146,6 +150,7 @@ ax.set_zlabel("3rd eigenvector")
 ax.w_zaxis.set_ticklabels([])
 plt.show()
 
+# PCA with 2 PC's
 x_pca2 = PCA(n_components = 2).fit_transform(x)
 plt.scatter(x=x_pca2[:, 0], y= x_pca2[:, 1], c = y, alpha = 0.6)
 plt.xlabel('1st eigenvector')
@@ -153,5 +158,17 @@ plt.xticks([])
 plt.ylabel('2nd eigenvector')
 plt.yticks([])
 plt.title('PCA of Iris dataset using two components')
+plt.tight_layout()
+plt.show()
+
+# Variance explained overall all components
+x_std = sc.fit_transform(x)
+pca = PCA().fit(x_std)
+plt.plot(np.cumsum(pca.explained_variance_ratio_))
+plt.xlim(0,4,1)
+plt.xticks(range(0,4,1))
+plt.ylim(0,1.1,0.25)
+plt.xlabel('Number of components')
+plt.ylabel('Cumulative explained variance')
 plt.tight_layout()
 plt.show()
