@@ -161,7 +161,7 @@ plt.title('PCA of Iris dataset using two components')
 plt.tight_layout()
 plt.show()
 
-# Variance explained overall all components
+# Variance explained over all components
 x_std = sc.fit_transform(x)
 pca = PCA().fit(x_std)
 plt.plot(np.cumsum(pca.explained_variance_ratio_))
