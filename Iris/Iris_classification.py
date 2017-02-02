@@ -141,7 +141,7 @@ from mpl_toolkits.mplot3d import Axes3D
 x_pca3 = PCA(n_components = 3).fit_transform(x)
 fig = plt.figure(1, figsize = (10,10))
 ax = Axes3D(fig, elev=-150, azim=110)
-ax.scatter(x_pca3[:, 0], x_pca3[:, 1], x_pca3[:, 2], c= y)
+ax.scatter(x_pca3[:, 0], x_pca3[:, 1], x_pca3[:, 2], c = y)
 ax.set_xlabel("1st eigenvector")
 ax.w_xaxis.set_ticklabels([])
 ax.set_ylabel("2nd eigenvector")
