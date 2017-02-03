@@ -91,7 +91,7 @@ print "-"*55
 # SVC not running too great - success rate of only ~66%
 
 #############
-# Reduce number of features  [feature importance] and rerun SVC
+# Reduce number of features  - dimensionality reduction [based on feature importance] and rerun SVC
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.feature_selection import SelectFromModel
 
@@ -122,4 +122,6 @@ print "\nClassification report: \n", classification_report(y_test_imp, predict_x
 print "-"*55
 
 # Pruned feature set based on importance does not improve the SVC model - in fact it makes it worse!! Glass type 3 & 4 do not get identified at all!!
+# Try another ML algorithm
+
 
