@@ -5,6 +5,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
@@ -58,7 +59,7 @@ plt.show()
 
 ## CLASSIFICATION
 # Split data into train and test
-x_train, x_test, y_train, y_test = train_test_split(vars_std, resp, train_size=0.70)
+x_train, x_test, y_train, y_test = train_test_split(vars_std, resp, train_size=0.75)
 
 ####
 #SVC
@@ -86,7 +87,8 @@ print "F1 score: %.2f" % f1_score(y_test, predict_x_test, average='weighted')
 # check out the confusion matrix & classification report
 print "\nConfusion matrix: \n", confusion_matrix(y_test, predict_x_test)
 print "\nClassification report: \n", classification_report(y_test, predict_x_test, target_names=resp_names)
-print "-"*55
+print "Cross validation scores: \n", cross_val_score(svc, vars, resp, cv = 5, scoring = 'accuracy')
+print "-"*65
 
 # SVC not running too great - success rate of only ~66%
 
@@ -98,12 +100,12 @@ from sklearn.feature_selection import SelectFromModel
 # Feature importance
 etc = ExtraTreesClassifier()
 etc = etc.fit(vars, resp)
-print "Feature importance: \n", etc.feature_importances_
+print "Dimensionality Reduction\n\Feature importance: \n", etc.feature_importances_
 transform_model = SelectFromModel(etc, threshold = np.median(etc.feature_importances_), prefit = True)
 vars_imp = transform_model.transform(vars)
 
 # SVC rerun
-x_train_imp, x_test_imp, y_train_imp, y_test_imp = train_test_split(vars_imp, resp, train_size=0.70)
+x_train_imp, x_test_imp, y_train_imp, y_test_imp = train_test_split(vars_imp, resp, train_size=0.75)
 svc2 = svc_gs.best_estimator_
 svc2.fit(x_train_imp, y_train_imp)
 
@@ -119,9 +121,10 @@ print "F1 score: %.2f" % f1_score(y_test_imp, predict_x_test_imp, average='weigh
 # check out the confusion matrix & classification report
 print "\nConfusion matrix: \n", confusion_matrix(y_test_imp, predict_x_test_imp)
 print "\nClassification report: \n", classification_report(y_test_imp, predict_x_test_imp, target_names=resp_names)
-print "-"*55
+print "Cross validation scores: \n", cross_val_score(svc2, vars, resp, cv = 5, scoring = 'accuracy')
+print "-"*65
 
-# Pruned feature set based on importance does not improve the SVC model - in fact it makes it worse!! Glass type 3 & 4 do not get identified at all!!
+# Dimensionality reduction based on importance does not improve the SVC model - in fact it makes it worse!! Glass type 3 & 4 do not get identified at all!!
 # Try another ML algorithm
 
 
