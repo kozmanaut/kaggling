@@ -59,7 +59,7 @@ plt.show()
 
 ## CLASSIFICATION
 # Split data into train and test
-x_train, x_test, y_train, y_test = train_test_split(vars_std, resp, train_size=0.75)
+x_train, x_test, y_train, y_test = train_test_split(vars, resp, train_size=0.70, random_state=4)
 
 ####
 #SVC
@@ -125,6 +125,51 @@ print "Cross validation scores: \n", cross_val_score(svc2, vars, resp, cv = 5, s
 print "-"*65
 
 # Dimensionality reduction based on importance does not improve the SVC model - in fact it makes it worse!! Glass type 3 & 4 do not get identified at all!!
-# Try another ML algorithm
+
+############
+# Random Forest
+from sklearn.ensemble import RandomForestClassifier
+
+""" #GRID SEARCH:
+rfc = RandomForestClassifier(warm_start = True, n_jobs = -1)
+param = {
+	"n_estimators" : [10, 50, 100],
+	"min_samples_leaf" : [1, 2, 10],
+	"criterion" : ['gini', 'entropy'],
+	"max_depth" : [10, 15, 20],
+	"class_weight": [None, "balanced"]
+	}
+rfc_gs = GridSearchCV(estimator = rfc, param_grid=param, cv=5, refit=True, scoring='accuracy')
+rfc_gs.fit(x_train, y_train)
+rfc = rfc_gs.best_estimator_
+rfc.fit(x_train, y_train)
+"""
+rfc = RandomForestClassifier(criterion='gini', max_depth=20, n_estimators=100, warm_start=True, min_samples_leaf=2)
+rfc.fit(x_train, y_train)
+rfc.score(x_test, y_test)
+
+#############
+# AdaBoost
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+
+abc = AdaBoostClassifier(base_estimator=DecisionTreeClassifier(min_samples_leaf=3), n_estimators=100)
+abc.fit(x_train, y_train)
+abc.score(x_test, y_test)
 
 
+for model in (rfc, abc):
+	print "%s:\nAccuracy on training set: %.2f" % (model, model.score(x_train, y_train))
+	print "The accuracy of  testing set: %.2f" % model.score(x_test, y_test)
+
+	predict_x_test = model.predict(x_test)
+	print "Accuracy score: %.2f" % accuracy_score(y_test, predict_x_test)
+	print "Precision score: %.2f" % precision_score(y_test, predict_x_test, average='weighted')
+	print  "Recall score: %.2f" % recall_score(y_test, predict_x_test, average='weighted')
+	print "F1 score: %.2f" % f1_score(y_test, predict_x_test, average='weighted')
+
+	# check out the confusion matrix & classification report
+	print "\nConfusion matrix: \n", confusion_matrix(y_test, predict_x_test)
+	print "\nClassification report: \n", classification_report(y_test, predict_x_test, target_names=resp_names)
+	print "Cross validation scores: \n", cross_val_score(model, vars, resp, cv = 5, scoring = 'accuracy')
+	print "-"*65
