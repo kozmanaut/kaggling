@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """ Machine learning classification using the iris dataset """
 
 import pandas as pd

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """ Glass identification exercise: https://www.kaggle.com/uciml/glass"""
 
 import pandas as pd
