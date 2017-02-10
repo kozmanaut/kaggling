@@ -61,13 +61,14 @@ plt.show()
 
 ## CLASSIFICATION
 # Split data into train and test
-x_train, x_test, y_train, y_test = train_test_split(vars, resp, train_size=0.70, random_state=4)
+x_train, x_test, y_train, y_test = train_test_split(vars_std, resp, train_size=0.70, random_state=4)
 
 ####
 #SVC
+"""
 svc = SVC(probability=True)
 param = {
-	"C" : [0.1,1,10,100],
+	"C" : [1,10,100],
 	"kernel" : ['rbf', 'poly'],
 	"degree" : [2, 4, 6],
 	"gamma" : ['auto', 1, 5, 10]
@@ -75,10 +76,13 @@ param = {
 svc_gs = GridSearchCV(estimator = svc, param_grid=param, cv=5, refit=True, scoring='accuracy')
 svc_gs.fit(x_train, y_train)
 svc = svc_gs.best_estimator_
+"""
+svc = SVC(C = 100, kernel = 'rbf', probability = True, degree = 2, gamma = 'auto')
 svc.fit(x_train, y_train)
 
+
 print "SVC classifier\nAccuracy on training set: %.2f" % svc.score(x_train, y_train)
-print "The accuracy of  testing set: %.2f" % svc.score(x_test, y_test)
+print "The accuracy of testing set: %.2f" % svc.score(x_test, y_test)
 
 predict_x_test = svc.predict(x_test)
 print "Accuracy score: %.2f" % accuracy_score(y_test, predict_x_test)
@@ -89,10 +93,10 @@ print "F1 score: %.2f" % f1_score(y_test, predict_x_test, average='weighted')
 # check out the confusion matrix & classification report
 print "\nConfusion matrix: \n", confusion_matrix(y_test, predict_x_test)
 print "\nClassification report: \n", classification_report(y_test, predict_x_test, target_names=resp_names)
-print "Cross validation scores: \n", cross_val_score(svc, vars, resp, cv = 5, scoring = 'accuracy')
+print "Cross validation scores: \n", cross_val_score(svc, vars_std, resp, cv = 5, scoring = 'accuracy')
 print "-"*65
 
-# SVC not running too great - success rate of only ~66%
+# SVC not running too great - success rate of only ~76%
 
 #############
 # Reduce number of features  - dimensionality reduction [based on feature importance] and rerun SVC
@@ -123,7 +127,7 @@ print "F1 score: %.2f" % f1_score(y_test_imp, predict_x_test_imp, average='weigh
 # check out the confusion matrix & classification report
 print "\nConfusion matrix: \n", confusion_matrix(y_test_imp, predict_x_test_imp)
 print "\nClassification report: \n", classification_report(y_test_imp, predict_x_test_imp, target_names=resp_names)
-print "Cross validation scores: \n", cross_val_score(svc2, vars, resp, cv = 5, scoring = 'accuracy')
+print "Cross validation scores: \n", cross_val_score(svc2, vars_std, resp, cv = 5, scoring = 'accuracy')
 print "-"*65
 
 # Dimensionality reduction based on importance does not improve the SVC model - in fact it makes it worse!! Glass type 3 & 4 do not get identified at all!!
@@ -173,5 +177,42 @@ for model in (rfc, abc):
 	# check out the confusion matrix & classification report
 	print "\nConfusion matrix: \n", confusion_matrix(y_test, predict_x_test)
 	print "\nClassification report: \n", classification_report(y_test, predict_x_test, target_names=resp_names)
-	print "Cross validation scores: \n", cross_val_score(model, vars, resp, cv = 5, scoring = 'accuracy')
+	print "Cross validation scores: \n", cross_val_score(model, vars_std, resp, cv = 5, scoring = 'accuracy')
 	print "-"*65
+
+## AdaBoost does not do better than Random Forest - keep RF!
+
+##############################
+## TRY PCA dimension reduction and run SVC & RF
+from sklearn.decomposition import PCA
+
+vars_pca = PCA(n_components = 3).fit_transform(vars_std)
+
+# split to train & test datasets
+x_train_pca, x_test_pca, y_train_pca, y_test_pca = train_test_split(vars_pca, resp, stratify = resp, train_size=0.70)
+# SVC
+svc_pca = SVC(C = 100, kernel = 'rbf', probability = True, degree = 2, gamma = 'auto')
+svc_pca.fit(x_train_pca, y_train_pca)
+
+#RF
+rfc_pca = RandomForestClassifier(criterion='gini', max_depth=20, n_estimators=100, warm_start=True, min_samples_leaf=2)
+rfc_pca.fit(x_train_pca, y_train_pca)
+
+for model in (svc_pca, rfc_pca):
+	print "%s:\nAccuracy on training set: %.2f" % (model, model.score(x_train_pca, y_train_pca))
+	print "The accuracy of  testing set: %.2f" % model.score(x_test_pca, y_test_pca)
+
+	predict_x_test_pca = model.predict(x_test_pca)
+	print "Accuracy score: %.2f" % accuracy_score(y_test_pca, predict_x_test_pca)
+	print "Precision score: %.2f" % precision_score(y_test_pca, predict_x_test_pca, average='weighted')
+	print  "Recall score: %.2f" % recall_score(y_test_pca, predict_x_test_pca, average='weighted')
+	print "F1 score: %.2f" % f1_score(y_test_pca, predict_x_test_pca, average='weighted')
+
+	# check out the confusion matrix & classification report
+	print "\nConfusion matrix: \n", confusion_matrix(y_test_pca, predict_x_test_pca)
+	print "\nClassification report: \n", classification_report(y_test_pca, predict_x_test_pca, target_names=resp_names)
+	print "Cross validation scores: \n", cross_val_score(model, vars_pca, resp, cv = 5, scoring = 'accuracy')
+	print "Cross validation mean: %.2f" % cross_val_score(model, vars_pca, resp, cv = 5, scoring = 'accuracy').mean()
+	print "-"*65
+
+## Dimensionality reduction does not improve analysis!
