@@ -70,7 +70,7 @@ print "-"*55
 # Try KNeighborsClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
-knc = KNeighborsClassifier( )
+knc = KNeighborsClassifier()
 knc.fit(x_train_std, y_train)
 
 # Check accuracy, confusion matrix & classification report of KN classifier
