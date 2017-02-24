@@ -94,3 +94,71 @@ Logistic regression classifier is pretty bad. Recall of 0.59 - miss-classifies 5
 Random Forest is a bit better - mean CV recall rate of 0.74. Miss-classifies 42/148 fraud transactions.
 RESAMPLE DATASET to have equal number of 0's and 1's!!!
 """
+
+## Re-sample the dataset  - get the same amount of fraud and non-fraud rows
+# 1. Fraud rows
+fraud = data.ix[data['Class'] == 1]
+# 2. Non-fraud rows
+non_fraud = data.ix[data['Class'] == 0]
+# 3. Randomly resample non-fraud df to the same length as the fraud df
+non_fraud_subsample = non_fraud.sample(n = len(fraud))
+# 4. Put the two together  in a new df
+data_subsampled = pd.concat([non_fraud_subsample, fraud], ignore_index=True)
+
+###
+# Classification redo (ss = sub-sampled)
+x_ss = data_subsampled.ix[:, data_subsampled.columns != 'Class']
+y_ss = data_subsampled['Class']
+
+# Split into test & train
+x_ss_train, x_ss_test, y_ss_train, y_ss_test = train_test_split(x_ss, y_ss, train_size = 0.7)
+
+# Logistic Regression
+logrc_ss = LogisticRegression()
+param = {
+	"C" : [0.01, 0.1, 1,10, 100]
+	}
+logrc_ss_gs = GridSearchCV(estimator = logrc_ss, param_grid=param, cv=5, refit=True, scoring='recall')
+logrc_ss_gs.fit(x_ss_train, y_ss_train)
+logrc_ss = logrc_ss_gs.best_estimator_
+logrc_ss.fit(x_ss_train, y_ss_train)
+
+# Random forest
+"""
+#Grid search:
+rfc_ss = RandomForestClassifier(n_jobs = -1, min_samples_leaf = 2)
+param = {
+	"n_estimators" : [10, 50, 100],
+	"max_depth" : [5, 10, 20]
+	}
+rfc_ss_gs = GridSearchCV(estimator = rfc_ss, param_grid=param, cv=5, refit=True, scoring='recall')
+rfc_ss_gs.fit(x_ss_train, y_ss_train)
+rfc_ss = rfc_ss_gs.best_estimator_
+"""
+rfc_ss = RandomForestClassifier(criterion='gini', max_depth=0, n_estimators=10, min_samples_leaf=2)
+rfc_ss.fit(x_ss_train, y_ss_train)
+
+for model in (logrc_ss, rfc_ss):
+	print "%s:\nAccuracy on training set: %.2f" % (model, model.score(x_ss_train, y_ss_train))
+	print "The accuracy of  testing set: %.2f" % model.score(x_ss_test, y_ss_test)
+
+	predict = model.predict(x_ss_test)
+	y_score= model.predict_proba(x_ss_test)
+	fpr, tpr, thr = roc_curve(y_ss_test, y_score[:,1])
+	roc = auc(fpr, tpr)
+
+	print "Accuracy score: %.2f" % accuracy_score(y_ss_test, predict)
+	print "Precision score: %.2f" % precision_score(y_ss_test, predict, average='weighted')
+	print  "Recall score: %.2f" % recall_score(y_ss_test, predict, average='weighted')
+	print "F1 score: %.2f" % f1_score(y_ss_test, predict, average='weighted')
+
+	# check out the confusion matrix & classification report
+	print "\nConfusion matrix: \n", confusion_matrix(y_ss_test, predict)
+	print "\nClassification report: \n", classification_report(y_ss_test, predict, target_names=y_names)
+	cross_val_scores = cross_val_score(model, x_ss, y_ss, cv = 7, scoring = 'recall')
+	print "Cross validation scores (recall): \n", cross_val_scores
+	print "Cross validation (recall) mean: %.2f" % cross_val_scores.mean()
+	print "AUC: %.3f" % roc
+	print "-"*65
+
+# Much better results! Logistic Regression classifier performs even better than RF - Fraud detection is the same (132/147), but non-fraud detection is slightly better (142/149 vs 139/149)
