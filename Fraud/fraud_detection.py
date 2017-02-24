@@ -14,6 +14,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report, roc_curve, auc
 from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import StandardScaler
 
 
 # for prettier plots
@@ -57,7 +58,7 @@ Grid search:
 rfc = RandomForestClassifier(n_jobs = -1, min_samples_leaf = 2)
 param = {
 	"n_estimators" : [10, 50, 100],
-	"max_depth" : [5, 10, 20]
+	"max_depth" : [1, 5, 10, 20]
 	}
 rfc_gs = GridSearchCV(estimator = rfc, param_grid=param, cv=5, refit=True, scoring='recall')
 rfc_gs.fit(x_train, y_train)
@@ -129,13 +130,13 @@ logrc_ss.fit(x_ss_train, y_ss_train)
 rfc_ss = RandomForestClassifier(n_jobs = -1, min_samples_leaf = 2)
 param = {
 	"n_estimators" : [10, 50, 100],
-	"max_depth" : [5, 10, 20]
+	"max_depth" : [1, 5, 10, 20]
 	}
 rfc_ss_gs = GridSearchCV(estimator = rfc_ss, param_grid=param, cv=5, refit=True, scoring='recall')
 rfc_ss_gs.fit(x_ss_train, y_ss_train)
 rfc_ss = rfc_ss_gs.best_estimator_
 """
-rfc_ss = RandomForestClassifier(criterion='gini', max_depth=0, n_estimators=10, min_samples_leaf=2)
+rfc_ss = RandomForestClassifier(criterion='gini', max_depth=10, n_estimators=50, min_samples_leaf=2)
 rfc_ss.fit(x_ss_train, y_ss_train)
 
 for model in (logrc_ss, rfc_ss):
@@ -161,4 +162,64 @@ for model in (logrc_ss, rfc_ss):
 	print "AUC: %.3f" % roc
 	print "-"*65
 
-# Much better results! Logistic Regression classifier performs even better than RF - Fraud detection is the same (132/147), but non-fraud detection is slightly better (142/149 vs 139/149)
+# Much better results! RF ever so slightly better than LogRC - fraud detected 133/147 vs 132/147. But non fraud detected by one worse: 141/149 [RF] vs 142/149 [LogRC]
+
+####
+# See if normalizing the 'amount' column will change anything
+data_subsampled['AmountNorm'] = StandardScaler().fit_transform(data_subsampled['Amount'].reshape(-1,1))
+data_subsampled = data_subsampled.drop(['Amount'], axis = 1)
+
+x_norm = data_subsampled.ix[:, data_subsampled.columns != 'Class']
+y_norm = data_subsampled['Class']
+
+x_norm_train, x_norm_test, y_norm_train, y_norm_test = train_test_split(x_norm, y_norm, train_size = 0.7)
+
+# Logistic Regression
+logrc_norm = LogisticRegression()
+param = {
+	"C" : [0.01, 0.1, 1,10, 100]
+	}
+logrc_norm_gs = GridSearchCV(estimator = logrc_norm, param_grid=param, cv=5, refit=True, scoring='recall')
+logrc_norm_gs.fit(x_norm_train, y_norm_train)
+logrc_norm = logrc_norm_gs.best_estimator_
+logrc_norm.fit(x_norm_train, y_norm_train)
+
+# Random forest
+"""
+#Grid search:
+rfc_norm = RandomForestClassifier(n_jobs = -1, min_samples_leaf = 2)
+param = {
+	"n_estimators" : [5, 10, 50, 100],
+	"max_depth" : [1, 5, 10, 20]
+	}
+rfc_norm_gs = GridSearchCV(estimator = rfc_norm, param_grid=param, cv=5, refit=True, scoring='recall')
+rfc_norm_gs.fit(x_norm_train, y_norm_train)
+rfc_norm = rfc_norm_gs.best_estimator_
+"""
+rfc_norm = RandomForestClassifier(criterion='gini', max_depth=10, n_estimators=5, min_samples_leaf=2)
+rfc_norm.fit(x_norm_train, y_norm_train)
+
+for model in (logrc_norm, rfc_norm):
+	print "%s:\nAccuracy on training set: %.2f" % (model, model.score(x_norm_train, y_norm_train))
+	print "The accuracy of  testing set: %.2f" % model.score(x_norm_test, y_norm_test)
+
+	predict = model.predict(x_norm_test)
+	y_score= model.predict_proba(x_norm_test)
+	fpr, tpr, thr = roc_curve(y_norm_test, y_score[:,1])
+	roc = auc(fpr, tpr)
+
+	print "Accuracy score: %.2f" % accuracy_score(y_norm_test, predict)
+	print "Precision score: %.2f" % precision_score(y_norm_test, predict, average='weighted')
+	print  "Recall score: %.2f" % recall_score(y_norm_test, predict, average='weighted')
+	print "F1 score: %.2f" % f1_score(y_norm_test, predict, average='weighted')
+
+	# check out the confusion matrix & classification report
+	print "\nConfusion matrix: \n", confusion_matrix(y_norm_test, predict)
+	print "\nClassification report: \n", classification_report(y_norm_test, predict, target_names=y_names)
+	cross_val_scores = cross_val_score(model, x_norm, y_ss, cv = 7, scoring = 'recall')
+	print "Cross validation scores (recall): \n", cross_val_scores
+	print "Cross validation (recall) mean: %.2f" % cross_val_scores.mean()
+	print "AUC: %.3f" % roc
+	print "-"*65
+
+## Results: Normalisation improves things! Recall rate slightly up. AUC for LogRC now 0.981 (vs 0.968!). AUC for RF now 0.976 (vs 0.972)
