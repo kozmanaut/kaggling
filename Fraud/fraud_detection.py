@@ -222,4 +222,4 @@ for model in (logrc_norm, rfc_norm):
 	print "AUC: %.3f" % roc
 	print "-"*65
 
-## Results: Normalisation improves things! Recall rate slightly up. AUC for LogRC now 0.981 (vs 0.968!). AUC for RF now 0.976 (vs 0.972)
+## Results: Normalization improves things! Recall rate slightly up. AUC for LogRC now 0.981 (vs 0.968!). AUC for RF now 0.976 (vs 0.972)
