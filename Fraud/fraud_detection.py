@@ -1,4 +1,4 @@
-#!/usr/bin/env pythonimport pandas as pd
+#!/usr/bin/env python
 
 """
 Fraudulent credit card transactions - classification exercise
